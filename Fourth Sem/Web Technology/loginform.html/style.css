@@ -1,0 +1,92 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #c850c0, #4158d0);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  width: 320px;
+}
+
+.form-box h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #111;
+}
+
+.toggle-buttons {
+  display: flex;
+  justify-content: space-between;
+  background: #f1f1f1;
+  border-radius: 25px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.toggle-buttons button {
+  width: 50%;
+  padding: 10px 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #555;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.toggle-buttons .active {
+  background: linear-gradient(to right, #c850c0, #4158d0);
+  color: white;
+}
+
+form input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.forgot {
+  display: block;
+  text-align: right;
+  font-size: 0.9em;
+  margin-bottom: 15px;
+  color: #e91e63;
+  text-decoration: none;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 25px;
+  background: linear-gradient(to right, #c850c0, #4158d0);
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+.signup-text {
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.signup-text a {
+  color: #e91e63;
+  text-decoration: none;
+}
