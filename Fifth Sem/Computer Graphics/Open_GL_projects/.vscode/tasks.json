@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile OpenGL",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "src/main.cpp",
+                "src/glad.c",
+                "-Iinclude",
+                "-IC:/msys64/mingw64/include",
+                "-o",
+                "app.exe",
+                "-lglfw3",
+                "-lopengl32",
+                "-lgdi32"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Run OpenGL",
+            "type": "shell",
+            "command": "${workspaceFolder}/app.exe",
+            "dependsOn": "Compile OpenGL",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        }
+    ]
+}
