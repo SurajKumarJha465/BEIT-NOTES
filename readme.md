@@ -53,53 +53,7 @@ Semesters 4 to 7 are available so far. More will be added as they are completed.
 
 ![Course Structure](assets/course-structure.png)
 
-## Semester Notes
 
-### [Fourth Semester](https://github.com/SurajKumarJha465/BEIT-notes-/tree/main/Fourth%20Sem)
-
-| Code | Subject |
-| --- | --- |
-| MTH 250 | Applied Mathematics |
-| ELX 176 | Microprocessor and Computer Architecture |
-| CMP 268 | System Administration and IT Infrastructure Services |
-| CMP 168 | Web Technology |
-| CMP 222 | Database Management System |
-| CMP 266 | Applied Operating System |
-
-### [Fifth Semester](https://github.com/SurajKumarJha465/BEIT-notes-/tree/main/Fifth%20Sem)
-
-| Code | Subject |
-| --- | --- |
-| CMP 234 | Computer Graphics |
-| MTH 242 | Numerical Methods |
-| CMP 270 | Research Fundamentals |
-| CMP 328 | IT Architecture |
-| CMM 333 | Multimedia System |
-| CMM 320 | Signal, System and Processing |
-| MGT 332 | Entrepreneurship and Professional Practice |
-
-### [Sixth Semester](https://github.com/SurajKumarJha465/BEIT-notes-/tree/main/Sixth%20Sem)
-
-| Code | Subject |
-| --- | --- |
-| CMP 370 | Internet of Things |
-| CMP 344 | Computer Network |
-| CMP 360 | Data Science and Analytics |
-| CMM 220 | Data Communication |
-| - | Elective |
-| MGT 320 | Engineering Management |
-| PRJ 360 | Project I |
-
-### [Seventh Semester](https://github.com/SurajKumarJha465/BEIT-notes-/tree/main/Seventh%20Sem)
-
-| Code | Subject |
-| --- | --- |
-| CMP 432 | Intelligent System |
-| CMP 428 | ICT Project Management |
-| - | Elective II |
-| MGT 250 | Engineering Economics |
-| CMP 444 | Information System |
-| CMP 434 | IT System Security |
 
 ## How to Use
 
