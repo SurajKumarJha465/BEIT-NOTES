@@ -8,42 +8,54 @@
 <style>
   :root {
     --bg: #f3f6f8; --panel: #ffffff; --ink: #14212b; --muted: #5d6c78;
-    --line: #d5dee5; --accent: #0b6e8a; --mark: #ffe08a; --focus: #0b6e8a;
+    --line: #d5dee5; --accent: #0b6e8a; --accent-ink: #ffffff; --mark: #ffe08a; --focus: #0b6e8a;
   }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #0e1a22; --panel: #15252f; --ink: #e6eef3; --muted: #8fa3b0;
-            --line: #263a47; --accent: #5cc4e0; --mark: #6b5a12; --focus: #5cc4e0; }
+            --line: #263a47; --accent: #5cc4e0; --accent-ink: #0e1a22; --mark: #6b5a12; --focus: #5cc4e0; }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink);
          font: 16px/1.5 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; }
-  main { max-width: 760px; margin: 0 auto; padding: 48px 20px 80px; }
+  main { max-width: 800px; margin: 0 auto; padding: 48px 20px 80px; }
   .head { display: flex; align-items: center; gap: 16px; margin-bottom: 6px; }
-  .avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; flex: none;
+  .avatar { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex: none;
             border: 2px solid var(--line); background: var(--panel); }
   h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); margin: 0; letter-spacing: -0.02em; }
   .sub { color: var(--muted); margin: 0 0 28px; }
   .sub a { color: var(--accent); }
-  .search { position: relative; }
   input[type=search] {
     width: 100%; padding: 16px 18px; font-size: 1.1rem; color: var(--ink);
     background: var(--panel); border: 2px solid var(--line); border-radius: 10px;
   }
   input[type=search]:focus { outline: 3px solid var(--focus); outline-offset: 1px; border-color: var(--focus); }
-  .meta { display: flex; justify-content: space-between; gap: 12px; margin: 14px 2px 10px;
-          color: var(--muted); font-size: 0.9rem; flex-wrap: wrap; }
+  .bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 14px 2px 10px; flex-wrap: wrap; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel); }
+  .seg label { padding: 6px 14px; cursor: pointer; font-size: 0.9rem; color: var(--muted); }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg label:has(input:checked) { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .seg label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: -3px; }
+  #count { color: var(--muted); font-size: 0.9rem; }
   ul { list-style: none; margin: 0; padding: 0; background: var(--panel);
        border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  li { display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 16px; }
   li + li { border-top: 1px solid var(--line); }
-  li a { display: flex; align-items: baseline; gap: 10px; padding: 12px 16px;
-         color: inherit; text-decoration: none; }
-  li a:hover, li a:focus-visible { background: var(--bg); outline: none; box-shadow: inset 3px 0 0 var(--accent); }
-  .name { font-weight: 600; }
-  .path { color: var(--muted); font-family: ui-monospace, Consolas, monospace; font-size: 0.85rem;
-          overflow-wrap: anywhere; }
+  li:hover { background: var(--bg); }
+  .info { flex: 1; min-width: 0; text-decoration: none; color: inherit; }
+  .info:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+  .name { font-weight: 600; overflow-wrap: anywhere; }
+  .path { display: block; color: var(--muted); font-family: ui-monospace, Consolas, monospace;
+          font-size: 0.8rem; overflow-wrap: anywhere; }
+  .size { color: var(--muted); font-size: 0.8rem; white-space: nowrap; }
+  button.dl { flex: none; padding: 7px 14px; font: inherit; font-size: 0.9rem; font-weight: 600;
+              color: var(--accent-ink); background: var(--accent); border: 0; border-radius: 8px; cursor: pointer; }
+  button.dl:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  button.dl:disabled { opacity: 0.6; cursor: progress; }
+  button.dl.alt { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
   mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1px; }
-  .state { padding: 28px 16px; text-align: center; color: var(--muted); }
-  .toggle { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .state { padding: 28px 16px; text-align: center; color: var(--muted); display: block; }
+  .note { color: var(--muted); font-size: 0.85rem; margin: 10px 2px 0; }
+  @media (max-width: 520px) { li { flex-wrap: wrap; } button.dl { margin-left: auto; } }
 </style>
 </head>
 <body>
@@ -52,20 +64,24 @@
     <img class="avatar" src="data:image/jpeg;base64,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" alt="Suraj" width="56" height="56">
     <h1 id="title">Repo folder search</h1>
   </div>
-  <p class="sub">Type a folder name to filter. Press <b>/</b> to jump to the search box. <a id="repolink" href="#">View repo on GitHub</a></p>
+  <p class="sub">Search folders and files, then download them. Press <b>/</b> to jump to the search box. <a id="repolink" href="#">View repo on GitHub</a></p>
 
-  <div class="search">
-    <input id="q" type="search" placeholder="Search folders…" autocomplete="off" aria-label="Search folders" autofocus>
-  </div>
+  <input id="q" type="search" placeholder="Search folders and files… e.g. sem-05, network, .pdf" autocomplete="off" aria-label="Search folders and files" autofocus>
 
-  <div class="meta">
+  <div class="bar">
+    <div class="seg" role="radiogroup" aria-label="Show">
+      <label><input type="radio" name="scope" value="all" checked> All</label>
+      <label><input type="radio" name="scope" value="dir"> Folders</label>
+      <label><input type="radio" name="scope" value="file"> Files</label>
+    </div>
     <span id="count" aria-live="polite"></span>
-    <label class="toggle"><input type="checkbox" id="top"> Top-level folders only</label>
   </div>
 
   <ul id="list"></ul>
+  <p class="note">Folders download as a ZIP built in your browser, so large folders can take a while.</p>
 </main>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 /* ====== EDIT THESE THREE LINES ====== */
 const OWNER  = "SurajKumarJha465";
@@ -73,61 +89,127 @@ const REPO   = "BEIT-NOTES";
 const BRANCH = "main";
 /* ==================================== */
 
+const RAW = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/`;
+const MAX_ROWS = 300;
+const BIG_ZIP = 150 * 1024 * 1024;
 const $ = id => document.getElementById(id);
-let folders = [];
+let items = [];   // {path, type: "dir"|"file", size}
 
-$("title").textContent = REPO + " folders";
-document.title = REPO + " folder search";
+$("title").textContent = REPO + " search";
+document.title = REPO + " search";
 $("repolink").href = `https://github.com/${OWNER}/${REPO}`;
 
-function esc(s) { return s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const encPath = p => p.split("/").map(encodeURIComponent).join("/");
+const scope = () => document.querySelector('input[name=scope]:checked').value;
 
+function fmtSize(n) {
+  if (n < 1024) return n + " B";
+  if (n < 1048576) return (n / 1024).toFixed(0) + " KB";
+  return (n / 1048576).toFixed(1) + " MB";
+}
 function highlight(text, term) {
-  if (!term) return esc(text);
-  const i = text.toLowerCase().indexOf(term);
+  const i = term ? text.toLowerCase().indexOf(term) : -1;
   if (i < 0) return esc(text);
   return esc(text.slice(0, i)) + "<mark>" + esc(text.slice(i, i + term.length)) + "</mark>" + esc(text.slice(i + term.length));
 }
 
 function render() {
   const term = $("q").value.trim().toLowerCase();
-  const topOnly = $("top").checked;
-  const hits = folders.filter(f =>
-    (!topOnly || !f.includes("/")) && f.toLowerCase().includes(term));
-  $("count").textContent = `${hits.length} of ${folders.length} folders`;
+  let s = scope();
+  if (s === "all" && !term) s = "dir";           // empty search: show the folder list
+  const pool = items.filter(it => s === "all" || it.type === s);
+  const hits = pool.filter(it => it.path.toLowerCase().includes(term));
+  $("count").textContent = `${hits.length} result${hits.length === 1 ? "" : "s"}`;
   if (!hits.length) {
-    $("list").innerHTML = `<li class="state">No folder matches "${esc(term)}". Try a shorter word.</li>`;
+    $("list").innerHTML = `<li><span class="state">Nothing matches "${esc(term)}". Try a shorter word or switch to All.</span></li>`;
     return;
   }
-  $("list").innerHTML = hits.slice(0, 500).map(f => {
-    const name = f.split("/").pop();
-    const parent = f.includes("/") ? f.slice(0, f.lastIndexOf("/")) : "";
-    const url = `https://github.com/${OWNER}/${REPO}/tree/${BRANCH}/${f.split("/").map(encodeURIComponent).join("/")}`;
-    return `<li><a href="${url}" target="_blank" rel="noopener">
-      <span class="name">${highlight(name, term)}</span>
-      <span class="path">${esc(parent ? parent + "/" : "(root)")}</span></a></li>`;
-  }).join("");
+  const rows = hits.slice(0, MAX_ROWS).map((it, n) => {
+    const name = it.path.split("/").pop();
+    const parent = it.path.includes("/") ? it.path.slice(0, it.path.lastIndexOf("/") + 1) : "(root)";
+    const kind = it.type === "dir" ? "tree" : "blob";
+    const url = `https://github.com/${OWNER}/${REPO}/${kind}/${BRANCH}/${encPath(it.path)}`;
+    const size = it.type === "file" ? `<span class="size">${fmtSize(it.size)}</span>` : "";
+    const label = it.type === "dir" ? "Download ZIP" : "Download";
+    return `<li><a class="info" href="${url}" target="_blank" rel="noopener">
+        <span class="name">${highlight(name, term)}${it.type === "dir" ? "/" : ""}</span>
+        <span class="path">${highlight(parent, term)}</span></a>${size}
+        <button class="dl${it.type === "dir" ? " alt" : ""}" data-i="${items.indexOf(it)}">${label}</button></li>`;
+  });
+  if (hits.length > MAX_ROWS) rows.push(`<li><span class="state">Showing the first ${MAX_ROWS}. Keep typing to narrow the list.</span></li>`);
+  $("list").innerHTML = rows.join("");
+}
+
+function saveBlob(blob, filename) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+}
+async function getBlob(path) {
+  const r = await fetch(RAW + encPath(path));
+  if (!r.ok) throw new Error(`Could not download ${path} (${r.status}).`);
+  return r.blob();
+}
+
+async function download(it, btn) {
+  const original = btn.textContent;
+  btn.disabled = true;
+  try {
+    if (it.type === "file") {
+      btn.textContent = "Downloading…";
+      saveBlob(await getBlob(it.path), it.path.split("/").pop());
+    } else {
+      const prefix = it.path + "/";
+      const files = items.filter(f => f.type === "file" && f.path.startsWith(prefix));
+      if (!files.length) throw new Error("This folder has no files.");
+      const total = files.reduce((n, f) => n + f.size, 0);
+      if (total > BIG_ZIP && !confirm(`This folder is ${fmtSize(total)}. Download anyway?`)) return;
+      if (typeof JSZip === "undefined") throw new Error("ZIP library failed to load. Check your connection and reload.");
+      const zip = new JSZip();
+      let done = 0;
+      for (const f of files) {
+        btn.textContent = `Zipping ${++done}/${files.length}`;
+        zip.file(f.path.slice(prefix.length), await getBlob(f.path));
+      }
+      btn.textContent = "Building ZIP…";
+      saveBlob(await zip.generateAsync({type: "blob"}), it.path.split("/").pop() + ".zip");
+    }
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    btn.textContent = original;
+    btn.disabled = false;
+  }
 }
 
 async function load() {
-  $("list").innerHTML = `<li class="state">Loading folders…</li>`;
+  $("list").innerHTML = `<li><span class="state">Loading folders and files…</span></li>`;
   try {
     const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`);
     if (res.status === 404) throw new Error("Repo or branch not found. Check OWNER, REPO and BRANCH in index.html, and make sure the repo is public.");
     if (res.status === 403) throw new Error("GitHub's request limit was reached. Wait a few minutes and reload.");
     if (!res.ok) throw new Error("GitHub returned an error (" + res.status + ").");
     const data = await res.json();
-    folders = data.tree.filter(n => n.type === "tree").map(n => n.path)
-      .sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+    items = data.tree
+      .filter(n => n.type === "tree" || n.type === "blob")
+      .map(n => ({path: n.path, type: n.type === "tree" ? "dir" : "file", size: n.size || 0}))
+      .sort((a, b) => a.path.localeCompare(b.path, undefined, {numeric: true}));
     render();
   } catch (e) {
     $("count").textContent = "";
-    $("list").innerHTML = `<li class="state">${esc(e.message)}</li>`;
+    $("list").innerHTML = `<li><span class="state">${esc(e.message)}</span></li>`;
   }
 }
 
 $("q").addEventListener("input", render);
-$("top").addEventListener("change", render);
+document.querySelectorAll('input[name=scope]').forEach(r => r.addEventListener("change", render));
+$("list").addEventListener("click", e => {
+  const b = e.target.closest("button.dl");
+  if (b) download(items[+b.dataset.i], b);
+});
 document.addEventListener("keydown", e => {
   if (e.key === "/" && document.activeElement !== $("q")) { e.preventDefault(); $("q").focus(); }
 });
