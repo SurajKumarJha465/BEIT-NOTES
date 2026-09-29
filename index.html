@@ -90,6 +90,8 @@ const BRANCH = "main";
 /* ==================================== */
 
 const RAW = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/`;
+const MEDIA = `https://media.githubusercontent.com/media/${OWNER}/${REPO}/${BRANCH}/`;   // serves the real file for Git LFS
+const GH_RAW = `https://github.com/${OWNER}/${REPO}/raw/${BRANCH}/`;                       // last-resort fallback
 const MAX_ROWS = 300;
 const BIG_ZIP = 150 * 1024 * 1024;
 const $ = id => document.getElementById(id);
@@ -148,10 +150,33 @@ function saveBlob(blob, filename) {
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 10000);
 }
-async function getBlob(path) {
-  const r = await fetch(RAW + encPath(path));
+const MIME = {pdf: "application/pdf", zip: "application/zip", png: "image/png", jpg: "image/jpeg",
+  jpeg: "image/jpeg", txt: "text/plain", doc: "application/msword", ppt: "application/vnd.ms-powerpoint",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation"};
+const extOf = p => (p.split(".").pop() || "").toLowerCase();
+
+// Git LFS stores a ~130 byte text "pointer" in the repo instead of the real file.
+// raw.githubusercontent.com returns that pointer, which is what makes a PDF look damaged.
+function isLfsPointer(buf) {
+  if (buf.byteLength > 1024) return false;
+  return new TextDecoder().decode(buf).startsWith("version https://git-lfs.github.com/spec");
+}
+function isPdf(buf) {
+  const head = new Uint8Array(buf.slice(0, 1024));
+  return new TextDecoder("latin1").decode(head).includes("%PDF-");
+}
+async function fetchBuf(url, path) {
+  const r = await fetch(url);
   if (!r.ok) throw new Error(`Could not download ${path} (${r.status}).`);
-  return r.blob();
+  return r.arrayBuffer();
+}
+async function getBlob(path) {
+  let buf = await fetchBuf(RAW + encPath(path), path);
+  if (isLfsPointer(buf)) buf = await fetchBuf(MEDIA + encPath(path), path);   // fetch the real LFS file
+  if (isLfsPointer(buf)) throw new Error(`${path} is stored with Git LFS and could not be fetched.`);
+  if (extOf(path) === "pdf" && !isPdf(buf)) throw new Error(`${path} did not download as a valid PDF.`);
+  return new Blob([buf], {type: MIME[extOf(path)] || "application/octet-stream"});
 }
 
 async function download(it, btn) {
@@ -160,7 +185,15 @@ async function download(it, btn) {
   try {
     if (it.type === "file") {
       btn.textContent = "Downloading…";
-      saveBlob(await getBlob(it.path), it.path.split("/").pop());
+      try {
+        saveBlob(await getBlob(it.path), it.path.split("/").pop());
+      } catch (err) {
+        // fetch blocked or failed: let the browser download it directly (GitHub redirects LFS files correctly)
+        const a = document.createElement("a");
+        a.href = GH_RAW + encPath(it.path);
+        a.download = it.path.split("/").pop();
+        document.body.appendChild(a); a.click(); a.remove();
+      }
     } else {
       const prefix = it.path + "/";
       const files = items.filter(f => f.type === "file" && f.path.startsWith(prefix));
@@ -172,10 +205,10 @@ async function download(it, btn) {
       let done = 0;
       for (const f of files) {
         btn.textContent = `Zipping ${++done}/${files.length}`;
-        zip.file(f.path.slice(prefix.length), await getBlob(f.path));
+        zip.file(f.path.slice(prefix.length), await getBlob(f.path), {binary: true});
       }
       btn.textContent = "Building ZIP…";
-      saveBlob(await zip.generateAsync({type: "blob"}), it.path.split("/").pop() + ".zip");
+      saveBlob(await zip.generateAsync({type: "blob", compression: "STORE"}), it.path.split("/").pop() + ".zip");
     }
   } catch (e) {
     alert(e.message);
